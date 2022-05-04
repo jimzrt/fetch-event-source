@@ -51,6 +51,8 @@ export interface FetchEventSourceInit extends RequestInit {
 
     /** The Fetch function to use. Defaults to window.fetch */
     fetch?: typeof fetch;
+
+    timeout?: number;
 }
 
 export function fetchEventSource(input: RequestInfo, {
@@ -62,6 +64,7 @@ export function fetchEventSource(input: RequestInfo, {
     onerror,
     openWhenHidden,
     fetch: inputFetch,
+    timeout,
     ...rest
 }: FetchEventSourceInit) {
     return new Promise<void>((resolve, reject) => {
@@ -105,11 +108,18 @@ export function fetchEventSource(input: RequestInfo, {
             }
             curRequestController = new AbortController();
             try {
+                let id;
+                if(timeout > 0){
+                    id = setTimeout(() => curRequestController.abort(), timeout);
+                }
                 const response = await fetch(input, {
                     ...rest,
                     headers,
                     signal: curRequestController.signal,
                 });
+                if(timeout > 0){
+                    clearTimeout(id);
+                }
 
                 await onopen(response);
                 

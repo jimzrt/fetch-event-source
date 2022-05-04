@@ -64,7 +64,7 @@ export function fetchEventSource(input: RequestInfo, {
     onerror,
     openWhenHidden,
     fetch: inputFetch,
-    timeout,
+    timeout: inputTimeout,
     ...rest
 }: FetchEventSourceInit) {
     return new Promise<void>((resolve, reject) => {
@@ -102,6 +102,7 @@ export function fetchEventSource(input: RequestInfo, {
 
         const fetch = inputFetch ?? window.fetch;
         const onopen = inputOnOpen ?? defaultOnOpen;
+        const timeout = inputTimeout ?? 0;
         async function create() {
             if (curRequestController) {
                 curRequestController.abort();
